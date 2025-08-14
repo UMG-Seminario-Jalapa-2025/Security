@@ -80,3 +80,39 @@ docker-compose up --build -d
 ```
 docker-compose down 
 ```
+
+### Example .env File
+
+Below is an example of the `.env` file configuration for this project. Replace the placeholder values with your actual credentials and settings:
+
+```properties
+# Keycloak configuration
+POSTGRES_DB=example_db
+POSTGRES_USER=example_user
+POSTGRES_PASSWORD=example_password
+KEYCLOAK_ADMIN=admin
+KEYCLOAK_ADMIN_PASSWORD=admin_password
+KEYCLOAK_HOSTNAME=localhost
+KEYCLOAK_PORT=8080
+KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080
+
+KEYCLOAK_REALM=example_realm
+KEYCLOAK_CLIENT_ID_APP=example_client_id
+KEYCLOAK_CLIENT_SECRET=example_client_secret
+
+# Redis configuration
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# CRM configuration
+AUTH_URL=http://auth-service:8083
+SERVICE_CRM_URL=http://crm:8090
+
+# Gatemaster CONFIGURATION
+AUTH_URL=http://auth-service:8083
+SERVICE_GATEMASTER_URL=http://gatemaster:8091
+
+# MySQL configuration
+SQL_SA_PASSWORD=example_sql_password
+SQL_PORT=1433
+```

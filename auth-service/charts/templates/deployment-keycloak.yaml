@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "auth-service.fullname" . }}-keycloak
+  labels:
+    app: {{ include "auth-service.fullname" . }}-keycloak
+spec:
+  replicas: {{ .Values.keycloak.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "auth-service.fullname" . }}-keycloak
+  template:
+    metadata:
+      labels:
+        app: {{ include "auth-service.fullname" . }}-keycloak
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.keycloak.podSecurityContext | nindent 8 }}
+      containers:
+        - name: keycloak
+          securityContext:
+            {{- toYaml .Values.keycloak.securityContext | nindent 12 }}
+          image: "{{ .Values.keycloak.image.repository }}:{{ .Values.keycloak.image.tag }}"
+          imagePullPolicy: {{ .Values.keycloak.image.pullPolicy }}
+          args: ["start", "--db=mysql"]
+          # args: ["start", "--optimized"] # Uncomment if you want to use the optimized mode
+          ports:
+            - name: http
+              containerPort: {{ .Values.keycloak.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.keycloak.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.keycloak.readinessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.keycloak.startupProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.keycloak.resources | nindent 12 }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.keycloak.secretName }}

@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Deploy API Gateway to Dev Environment
 
 on:
   push:

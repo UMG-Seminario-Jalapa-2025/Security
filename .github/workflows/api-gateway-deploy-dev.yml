@@ -87,13 +87,13 @@ jobs:
 
       - name: Build Docker image
         run: |
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/api-gateway
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/dev-api-gateway
           IMAGE_TAG=${{ github.run_number }}
           docker build -t $IMAGE_NAME:$IMAGE_TAG ./api-gateway
 
       - name: Push Docker image
         run: |
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/api-gateway
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/dev-api-gateway
           IMAGE_TAG=${{ github.run_number }}
           docker push $IMAGE_NAME:$IMAGE_TAG
 
@@ -128,6 +128,6 @@ jobs:
             ./api-gateway/charts/ \
             --namespace ${{ vars.NAMESPACE }} \
             --create-namespace \
-            --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/api-gateway \
+            --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/dev-api-gateway \
             --set image.tag=${{ github.run_number }} \
             --wait --atomic --timeout 5m

@@ -87,13 +87,13 @@ jobs:
 
       - name: Build Docker image
         run: |
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/auth-service
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/dev-auth-service
           IMAGE_TAG=${{ github.run_number }}
           docker build -t $IMAGE_NAME:$IMAGE_TAG ./auth-service
 
       - name: Push Docker image
         run: |
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/auth-service
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/dev-auth-service
           IMAGE_TAG=${{ github.run_number }}
           docker push $IMAGE_NAME:$IMAGE_TAG
 
@@ -128,6 +128,6 @@ jobs:
             ./auth-service/charts/ \
             --namespace ${{ vars.NAMESPACE }} \
             --create-namespace \
-            --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/auth-service \
+            --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/dev-auth-service \
             --set image.tag=${{ github.run_number }} \
             --wait --atomic --timeout 5m

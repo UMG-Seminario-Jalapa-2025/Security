@@ -69,7 +69,7 @@ startupProbe:
   timeoutSeconds: 3
   failureThreshold: 1
   successThreshold: 1
-  initialDelaySeconds: 6
+  initialDelaySeconds: 7
 
 nodeSelector: {}
 

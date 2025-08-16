@@ -2,8 +2,7 @@ name: Deploy API Gateway to Prod Environment
 
 on:
   push:
-    # branches: ['main']
-    branches: ['feature/k8s-deployment-setup']
+    branches: ['main']
     paths:
       - 'api-gateway/**'
 

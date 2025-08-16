@@ -2,8 +2,7 @@ name: Deploy Auth Service to Prod Environment
 
 on:
   push:
-    # branches: ['main']
-    branches: ['feature/k8s-deployment-setup']
+    branches: ['main']
     paths:
       - 'auth-service/**'
 

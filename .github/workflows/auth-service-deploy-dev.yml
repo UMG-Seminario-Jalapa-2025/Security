@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Deploy Auth Service to Dev Environment
 
 on:
   push:

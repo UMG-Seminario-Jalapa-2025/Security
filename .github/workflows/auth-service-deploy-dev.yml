@@ -2,8 +2,7 @@ name: Deploy Auth Service to Dev Environment
 
 on:
   push:
-    # branches: ['develop']
-    branches: ['feature/k8s-deployment-setup']
+    branches: ['develop']
     paths:
       - 'auth-service/**'
 

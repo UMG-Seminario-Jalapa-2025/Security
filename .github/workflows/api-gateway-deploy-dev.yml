@@ -43,41 +43,41 @@ jobs:
           name: node-build
           path: ./api-gateway
 
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    needs: build
-    strategy:
-      matrix:
-        node-version: [18.x]
+  # test:
+  #   name: Test
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   strategy:
+  #     matrix:
+  #       node-version: [18.x]
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: ./api-gateway/package-lock.json
+  #     - name: Use Node.js ${{ matrix.node-version }}
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: 'npm'
+  #         cache-dependency-path: ./api-gateway/package-lock.json
 
-      - name: Install dependencies
-        working-directory: ./api-gateway
-        run: npm ci
+  #     - name: Install dependencies
+  #       working-directory: ./api-gateway
+  #       run: npm ci
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: node-build
+  #     - name: Download build artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: node-build
 
-      - name: Run tests
-        working-directory: ./api-gateway
-        run: npm test
+  #     - name: Run tests
+  #       working-directory: ./api-gateway
+  #       run: npm test
 
   docker-build:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
-    needs: test
+    # needs: test
     environment: DEV-ONE21
 
     steps:

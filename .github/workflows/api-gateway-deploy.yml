@@ -7,7 +7,7 @@ on:
       - 'api-gateway/**'
 
 concurrency:
-  group: deploy-one21
+  group: api-gateway-deploy-one21
   cancel-in-progress: true
 
 jobs:

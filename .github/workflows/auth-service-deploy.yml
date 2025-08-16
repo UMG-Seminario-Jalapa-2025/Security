@@ -7,7 +7,7 @@ on:
       - 'auth-service/**'
 
 concurrency:
-  group: deploy-one21
+  group: auth-service-deploy-one21
   cancel-in-progress: true
 
 jobs:

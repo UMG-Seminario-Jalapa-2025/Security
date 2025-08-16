@@ -59,6 +59,10 @@ spec:
               value: "{{ .Values.dragonflycache.service.port }}"
             - name: PORT
               value: "{{ .Values.containerPort }}"
+            {{- range .Values.envVars }}
+            - name: {{ .name }}
+              value: "{{ .value }}"
+            {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

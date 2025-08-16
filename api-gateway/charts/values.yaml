@@ -10,6 +10,15 @@ image:
   tag: 'prod'
   pullPolicy: Always
 
+ingress:
+  enabled: true
+  host: one21.app
+  tlsSecretName: gateway-tls-secret
+
+issuer:
+  name: letsencrypt-prod
+  email: jmarroquins13@miumg.edu.gt
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -107,6 +116,14 @@ securityContext:
       - SYS_PTRACE
 
 generatorLabel: draft
+
+envVars:
+  - name: AUTH_URL
+    value: "http://auth-service.one21.svc.cluster.local:8083"
+  # - name: serviceCRMURL
+  #   value: "http://auth-service.one21.svc.cluster.local:8083"
+  # - name: serviceGATEMASTERURL
+  #   value: "http://auth-service.one21.svc.cluster.local:8083"
 
 # Dragonfly Cache Configuration
 dragonflycache:

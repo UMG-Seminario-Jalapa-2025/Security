@@ -47,20 +47,9 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - AUTH_URL=${AUTH_URL}
-      - BUSINESS_PARTNERS_URL=http://business-partners-service:8082
     depends_on:
       - redis
       - keycloak
-
-  business-partners-service:
-    image: seminariojalapa/business-partners-service:0.0.5-SNAPSHOT-20250817.052812
-    ports:
-      - "8082:8082"
-    environment:
-      - PORT=8082
-    depends_on:
-      - keycloak
-      - api-gateway
 
   auth-service:
     image: auth-service:latest

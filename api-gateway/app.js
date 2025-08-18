@@ -74,7 +74,19 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-
+const businessPartnersUrl = process.env.BUSINESS_PARTNERS_URL || "http://business-partners-service:8082";
+// Proxy para business-partners-service (incluyendo Swagger) protegido con authMiddleware
+app.use(
+  "/api/business-partners",
+  authMiddleware,
+  createProxyMiddleware({
+    target: businessPartnersUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/business-partners": "",
+    },
+  })
+);
 
 // Set up proxy middleware for each service
 

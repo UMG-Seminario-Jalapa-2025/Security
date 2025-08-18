@@ -1,0 +1,133 @@
+name: Deploy API Gateway to Prod Environment
+
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'api-gateway/**'
+
+concurrency:
+  group: api-gateway-deploy-one21
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ./api-gateway/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./api-gateway
+        run: npm ci
+
+      - name: Build project
+        working-directory: ./api-gateway
+        run: npm run build --if-present
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-build
+          path: ./api-gateway
+
+  # test:
+  #   name: Test
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   strategy:
+  #     matrix:
+  #       node-version: [18.x]
+
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - name: Use Node.js ${{ matrix.node-version }}
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         cache: 'npm'
+  #         cache-dependency-path: ./api-gateway/package-lock.json
+
+  #     - name: Install dependencies
+  #       working-directory: ./api-gateway
+  #       run: npm ci
+
+  #     - name: Download build artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: node-build
+
+  #     - name: Run tests
+  #       working-directory: ./api-gateway
+  #       run: npm test
+
+  docker-build:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    # needs: test
+    environment: ONE21
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/api-gateway
+          IMAGE_TAG=${{ github.run_number }}
+          docker build -t $IMAGE_NAME:$IMAGE_TAG ./api-gateway
+
+      - name: Push Docker image
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/api-gateway
+          IMAGE_TAG=${{ github.run_number }}
+          docker push $IMAGE_NAME:$IMAGE_TAG
+
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: docker-build
+    environment: ONE21
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install ${{ vars.API_GATEWAY_DEPLOY_NAME }} \
+            -f ./api-gateway/charts/values.yaml \
+            ./api-gateway/charts/ \
+            --namespace ${{ vars.NAMESPACE }} \
+            --create-namespace \
+            --set image.repository=${{ secrets.DOCKERHUB_USERNAME }}/api-gateway \
+            --set image.tag=${{ github.run_number }} \
+            --wait --atomic --timeout 5m

@@ -7,7 +7,7 @@ containerPort: 3000
 
 image:
   repository: docker.io/seminariojalapa/api-gateway
-  tag: 'prod'
+  tag: 'latest'
   pullPolicy: Always
 
 ingress:

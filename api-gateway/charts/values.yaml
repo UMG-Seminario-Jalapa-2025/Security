@@ -120,8 +120,8 @@ generatorLabel: draft
 envVars:
   - name: AUTH_URL
     value: "http://auth-service.one21.svc.cluster.local:8083"
-  # - name: serviceCRMURL
-  #   value: "http://auth-service.one21.svc.cluster.local:8083"
+  - name: BUSINESS_PARTNERS_URL
+    value: "http://one21-business-partners-service.one21.svc.cluster.local:9000"
   # - name: serviceGATEMASTERURL
   #   value: "http://auth-service.one21.svc.cluster.local:8083"
 

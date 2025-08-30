@@ -7,7 +7,7 @@ containerPort: 3000
 
 image:
   repository: docker.io/seminariojalapa/api-gateway
-  tag: 'prod'
+  tag: 'latest'
   pullPolicy: Always
 
 ingress:
@@ -120,8 +120,8 @@ generatorLabel: draft
 envVars:
   - name: AUTH_URL
     value: "http://dev-auth-service.dev-one21.svc.cluster.local:8083"
-  # - name: serviceCRMURL
-  #   value: "http://dev-auth-service.dev-one21.svc.cluster.local:8083"
+  - name: BUSINESS_PARTNERS_URL
+    value: "http://dev-one21-business-partners-service.dev-one21.svc.cluster.local:9000"
   # - name: serviceGATEMASTERURL
   #   value: "http://dev-auth-service.dev-one21.svc.cluster.local:8083"
 

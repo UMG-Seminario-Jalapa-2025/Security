@@ -122,8 +122,8 @@ envVars:
     value: "http://dev-auth-service.dev-one21.svc.cluster.local:8083"
   - name: BUSINESS_PARTNERS_URL
     value: "http://dev-one21-business-partners-service.dev-one21.svc.cluster.local:9000"
-  # - name: serviceGATEMASTERURL
-  #   value: "http://dev-auth-service.dev-one21.svc.cluster.local:8083"
+  - name: EMPLOYEE_URL
+    value: "http://dev-one21-employee-service.dev-one21.svc.cluster.local:9001"
 
 # Dragonfly Cache Configuration
 dragonflycache:

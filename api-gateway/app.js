@@ -74,8 +74,33 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-const serviceCRMURL = process.env.SERVICE_CRM_URL || "http://localhost:3002";
-const serviceGATEMASTERURL = process.env.SERVICE_GATEMASTER_URL || "http://localhost:3002";
+const businessPartnersUrl = process.env.BUSINESS_PARTNERS_URL || "http://business-partners-service:8082";
+// Proxy para business-partners-service (incluyendo Swagger) protegido con authMiddleware
+app.use(
+  "/api/business-partners",
+  authMiddleware,
+  createProxyMiddleware({
+    target: businessPartnersUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/business-partners": "",
+    },
+  })
+);
+
+const employeeUrl = process.env.EMPLOYEE_URL || "http://employee-service:8083";
+// Proxy para employee-service (incluyendo Swagger) protegido con authMiddleware
+app.use(
+  "/api/employee",
+  authMiddleware,
+  createProxyMiddleware({
+    target: employeeUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/employee": "",
+    },
+  })
+);
 
 // Set up proxy middleware for each service
 
@@ -86,40 +111,6 @@ app.use(
     changeOrigin: true,
     pathRewrite: {
       "^/api/auth": "",
-    },
-    onProxyReq: (proxyReq, req, res) => {
-      if (req.method === "POST" && req.headers["content-type"]) {
-        proxyReq.setHeader("Content-Type", req.headers["content-type"]);
-      }
-    },
-  })
-);
-
-app.use(
-  "/api/crm",
-  authMiddleware,
-  createProxyMiddleware({
-    target: serviceCRMURL,
-    changeOrigin: true,
-    pathRewrite: {
-      "^/api/crm": "",
-    },
-    onProxyReq: (proxyReq, req, res) => {
-      if (req.method === "POST" && req.headers["content-type"]) {
-        proxyReq.setHeader("Content-Type", req.headers["content-type"]);
-      }
-    },
-  })
-);
-
-app.use(
-  "/api/gatemaster",
-  authMiddleware,
-  createProxyMiddleware({
-    target: serviceGATEMASTERURL,
-    changeOrigin: true,
-    pathRewrite: {
-      "^/api/gatemaster": "",
     },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {

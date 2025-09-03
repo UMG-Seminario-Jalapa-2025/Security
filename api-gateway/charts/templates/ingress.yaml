@@ -7,16 +7,16 @@ metadata:
     {{- include "api-gateway.labels" . | nindent 4 }}
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /api/$2
-    nginx.ingress.kubernetes.io/use-regex: "true"
+    # nginx.ingress.kubernetes.io/rewrite-target: /api/$2
+    # nginx.ingress.kubernetes.io/use-regex: "true"
     cert-manager.io/issuer: {{ .Values.issuer.name }}
 spec:
   rules:
     - host: {{ .Values.ingress.host }}
       http:
         paths:
-          - path: /api(/|$)(.*)
-            pathType: ImplementationSpecific
+          - path: /api
+            pathType: Prefix
             backend:
               service:
                 name: {{ include "api-gateway.fullname" . }}

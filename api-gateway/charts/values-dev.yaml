@@ -6,8 +6,8 @@ replicaCount: 1
 containerPort: 3000
 
 image:
-  repository: docker.io/seminariojalapa/dev-api-gateway
-  tag: '4'
+  repository: docker.io/seminariojalapa/api-gateway
+  tag: 'latest'
   pullPolicy: Always
 
 ingress:

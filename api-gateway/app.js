@@ -77,13 +77,13 @@ const authMiddleware = async (req, res, next) => {
 const businessPartnersUrl = process.env.BUSINESS_PARTNERS_URL || "http://business-partners-service:8082";
 // Proxy para business-partners-service (incluyendo Swagger) protegido con authMiddleware
 app.use(
-  "/api/business-partners",
+  "/api/partners",
   authMiddleware,
   createProxyMiddleware({
     target: businessPartnersUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/business-partners": "",
+      "^/api/partners": "/partners",
     },
   })
 );
@@ -97,7 +97,7 @@ app.use(
     target: employeeUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/employee": "",
+      "^/api/employee": "/employee",
     },
   })
 );

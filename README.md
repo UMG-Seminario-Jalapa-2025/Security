@@ -116,3 +116,92 @@ SERVICE_GATEMASTER_URL=http://gatemaster:8091
 SQL_SA_PASSWORD=example_sql_password
 SQL_PORT=1433
 ```
+
+## Ejemplos de uso de endpoints
+
+### 1. Crear usuario
+```sh
+curl -X POST http://localhost:8081/api/admin/users \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "usuario_demo",
+    "email": "usuario.demo@example.com",
+    "firstName": "Juan",
+    "lastName": "Pérez",
+    "realmRoles": ["patient"],
+    "groups": ["/pacientes"]
+  }'
+```
+
+### 2. Obtener todos los usuarios
+```sh
+curl -X GET http://localhost:8081/api/admin/users \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+```
+
+### 3. Obtener usuario por email
+```sh
+curl -X GET http://localhost:8081/api/admin/users/email/usuario.demo@example.com \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+```
+
+### 4. Editar usuario por ID
+```sh
+curl -X PUT http://localhost:8081/api/admin/users/{id} \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"firstName": "NuevoNombre"}'
+```
+
+### 5. Eliminar usuario por ID
+```sh
+curl -X DELETE http://localhost:8081/api/admin/users/{id} \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+```
+
+### 6. Editar roles por ID
+```sh
+curl -X PUT http://localhost:8081/api/admin/users/{id}/roles \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"realmRoles": ["doctor"]}'
+```
+
+### 7. Editar grupos por ID
+```sh
+curl -X PUT http://localhost:8081/api/admin/users/{id}/groups \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"groups": ["/pacientes"]}'
+```
+
+### 8. Editar roles por email
+```sh
+curl -X PUT http://localhost:8081/api/admin/users/by-email/roles \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "usuario.demo@example.com", "realmRoles": ["doctor"]}'
+```
+
+### 9. Editar grupos por email
+```sh
+curl -X PUT http://localhost:8081/api/admin/users/by-email/groups \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "usuario.demo@example.com", "groups": ["/pacientes"]}'
+```
+
+### 10. Crear rol
+```sh
+curl -X POST http://localhost:8081/api/admin/roles \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "doctor", "description": "Doctor role"}'
+```
+
+### 11. Obtener todos los roles
+```sh
+curl -X GET http://localhost:8081/api/admin/roles \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+```

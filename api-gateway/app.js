@@ -41,33 +41,39 @@ const apiLimiter = rateLimit({
 app.use(apiLimiter);
 
 const authUrl = process.env.AUTH_URL || "http://localhost:3001";
+const adminUrl = process.env.ADMIN_URL || "http://localhost:8084";
 
 const authMiddleware = async (req, res, next) => {
-  console.log("Llamando al authMiddleware");
+  console.log("Interceptando ruta:", req.path);
+
+  // Permitir acceso sin autenticación a Swagger
+  const path = req.path;
+  if (path.startsWith("/api/business-partners/swagger-ui") || path.startsWith("/api/business-partners/v3/api-docs")) {
+    console.log("Ruta de Swagger detectada, permitiendo acceso sin autenticación.");
+    return next();
+  }
+
   const authHeader = req.headers["authorization"];
-  if (!authHeader) return res.status(401).send("Missing authorization header");
+  if (!authHeader) {
+    return res.status(401).send("Missing authorization header");
+  }
+
   console.log("Antes de hacer el split de auth header");
   const token = authHeader.split(" ")[1];
   let cachedData = await redisClient.get(token);
   if (cachedData) {
     return next();
   }
+
   try {
     const response = await axios.get(`${authUrl}/verifyToken`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const { data } = response;
 
-    //Getting data for authorization later on.
-    //apps, modulos, recursos y permisos (adjuntarlo al json de verify)
-    // Cual es mi criterio de busqueda en la bd.
-    //Criterio de busqueda , sessionid=token and userid.
-    
+    // Guardar datos en Redis para futuras validaciones
     await redisClient.set(token, JSON.stringify(data));
     next();
-
-  
-
   } catch (error) {
     console.log({ error });
     res.status(401).send("Invalid or expired token");
@@ -75,7 +81,64 @@ const authMiddleware = async (req, res, next) => {
 };
 
 const businessPartnersUrl = process.env.BUSINESS_PARTNERS_URL || "http://business-partners-service:8082";
-// Proxy para business-partners-service (incluyendo Swagger) protegido con authMiddleware
+// Proxies para Swagger (sin authMiddleware)
+app.use(
+  "/api/business-partners/swagger-ui",
+  createProxyMiddleware({
+    target: businessPartnersUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/business-partners/swagger-ui": "/swagger-ui",
+    },
+  })
+);
+
+app.use(
+  "/api/business-partners/v3/api-docs",
+  createProxyMiddleware({
+    target: businessPartnersUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/business-partners/v3/api-docs": "/v3/api-docs",
+    },
+  })
+);
+
+app.use(
+  "/v3/api-docs/swagger-config",
+  createProxyMiddleware({
+    target: businessPartnersUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/v3/api-docs/swagger-config": "/v3/api-docs/swagger-config",
+    },
+  })
+);
+
+// Proxy para Swagger UI index.html
+app.use(
+  "/api/business-partners/swagger-ui/index.html",
+  createProxyMiddleware({
+    target: businessPartnersUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/business-partners/swagger-ui/index.html": "/swagger-ui/index.html",
+    },
+  })
+);
+
+app.use(
+  "/v3/api-docs",
+  createProxyMiddleware({
+    target: businessPartnersUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/v3/api-docs": "/v3/api-docs",
+    },
+  })
+);
+
+// Proteger todas las demás rutas con authMiddleware
 app.use(
   "/api/business-partners",
   authMiddleware,
@@ -102,6 +165,17 @@ app.use(
       if (req.method === "POST" && req.headers["content-type"]) {
         proxyReq.setHeader("Content-Type", req.headers["content-type"]);
       }
+    },
+  })
+);
+
+app.use(
+  "/api/admin",
+  createProxyMiddleware({
+    target: adminUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/admin": "",
     },
   })
 );

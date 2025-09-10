@@ -48,12 +48,13 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - AUTH_URL=${AUTH_URL}
       - BUSINESS_PARTNERS_URL=http://business-partners-service:8082
+      - ADMIN_URL=http://admin-service:8084
     depends_on:
       - redis
       - keycloak
 
   business-partners-service:
-    image: seminariojalapa/business-partners-service:0.0.5-SNAPSHOT-20250819.025552
+    image: seminariojalapa/business-partners-service:0.0.5-SNAPSHOT-20250825.144642
     ports:
       - "8082:8082"
     environment:
@@ -76,6 +77,23 @@ services:
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
       - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID_APP}
       - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+    depends_on:
+      - keycloak
+      - api-gateway
+  
+  admin-service:
+    image: admin-service:latest
+    build:
+      context: ./admin-service
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      - PORT=8084
+      - KC_BASE_URL=${KC_BASE_URL}
+      - KC_REALM=${KEYCLOAK_REALM}
+      - KC_PROV_ID=${KEYCLOAK_CLIENT_ID_APP}
+      - KC_PROV_SECRET=${KEYCLOAK_CLIENT_SECRET}
     depends_on:
       - keycloak
       - api-gateway

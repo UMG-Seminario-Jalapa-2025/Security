@@ -74,7 +74,33 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
+const businessPartnersUrl = process.env.BUSINESS_PARTNERS_URL || "http://business-partners-service:8082";
+// Proxy para business-partners-service (incluyendo Swagger) protegido con authMiddleware
+app.use(
+  "/api/partners",
+  authMiddleware,
+  createProxyMiddleware({
+    target: businessPartnersUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/partners": "/partners",
+    },
+  })
+);
 
+const employeeUrl = process.env.EMPLOYEE_URL || "http://employee-service:8083";
+// Proxy para employee-service (incluyendo Swagger) protegido con authMiddleware
+app.use(
+  "/api/employee",
+  authMiddleware,
+  createProxyMiddleware({
+    target: employeeUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/employee": "/employee",
+    },
+  })
+);
 
 // Set up proxy middleware for each service
 

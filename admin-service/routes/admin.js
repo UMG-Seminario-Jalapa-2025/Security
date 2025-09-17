@@ -4,6 +4,30 @@ import { createUser, getAllUsers, deleteUser, getUserByEmail, updateUser, update
 import { createRole, getAllRoles } from '../services/roleService.js';
 
 const router = express.Router();
+// Endpoint público para registro de usuario (sin token)
+router.post('/register', async (req, res) => {
+  try {
+    const { email, firstName, lastName } = req.body;
+    if (!email || !firstName || !lastName) {
+      return res.status(400).json({ error: 'email, firstName y lastName son requeridos' });
+    }
+    // Solo permite el rol 'client', requiere nombre y apellido
+    const realmRoles = ['client'];
+    const newUser = await createUser({
+      username: email,
+      email,
+      firstName,
+      lastName,
+      realmRoles,
+      groups: [],
+      sendActionsEmail: true
+    });
+    return res.status(201).json(newUser);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'keycloak_error', detail: err.message });
+  }
+});
 
 router.post('/users', requireAppAdmin, async (req, res) => {
   try {

@@ -40,7 +40,7 @@ const apiLimiter = rateLimit({
 });
 app.use(apiLimiter);
 
-const authUrl = process.env.AUTH_URL || "http://localhost:3001";
+const authUrl = (process.env.AUTH_URL || "http://localhost:3001").replace(/\/$/, "");
 const adminUrl = process.env.ADMIN_URL || "http://localhost:8084";
 
 const authMiddleware = async (req, res, next) => {
@@ -81,62 +81,6 @@ const authMiddleware = async (req, res, next) => {
 };
 
 const businessPartnersUrl = process.env.BUSINESS_PARTNERS_URL || "http://business-partners-service:8082";
-// Proxies para Swagger (sin authMiddleware)
-app.use(
-  "/api/business-partners/swagger-ui",
-  createProxyMiddleware({
-    target: businessPartnersUrl,
-    changeOrigin: true,
-    pathRewrite: {
-      "^/api/business-partners/swagger-ui": "/swagger-ui",
-    },
-  })
-);
-
-app.use(
-  "/api/business-partners/v3/api-docs",
-  createProxyMiddleware({
-    target: businessPartnersUrl,
-    changeOrigin: true,
-    pathRewrite: {
-      "^/api/business-partners/v3/api-docs": "/v3/api-docs",
-    },
-  })
-);
-
-app.use(
-  "/v3/api-docs/swagger-config",
-  createProxyMiddleware({
-    target: businessPartnersUrl,
-    changeOrigin: true,
-    pathRewrite: {
-      "^/v3/api-docs/swagger-config": "/v3/api-docs/swagger-config",
-    },
-  })
-);
-
-// Proxy para Swagger UI index.html
-app.use(
-  "/api/business-partners/swagger-ui/index.html",
-  createProxyMiddleware({
-    target: businessPartnersUrl,
-    changeOrigin: true,
-    pathRewrite: {
-      "^/api/business-partners/swagger-ui/index.html": "/swagger-ui/index.html",
-    },
-  })
-);
-
-app.use(
-  "/v3/api-docs",
-  createProxyMiddleware({
-    target: businessPartnersUrl,
-    changeOrigin: true,
-    pathRewrite: {
-      "^/v3/api-docs": "/v3/api-docs",
-    },
-  })
-);
 
 // Proteger todas las demás rutas con authMiddleware
 app.use(

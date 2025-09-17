@@ -1,6 +1,6 @@
 import kc, { authProvisioner } from '../config/keycloak.js';
 
-const ALLOWED_REALM_ROLES = new Set(['patient','doctor','staff','app-admin']);
+const ALLOWED_REALM_ROLES = new Set(['patient','doctor','staff','app-admin','client']);
 
 export async function createUser({ username, email, firstName, lastName, sendActionsEmail = true, realmRoles = [], groups = [] }) {
   await authProvisioner();

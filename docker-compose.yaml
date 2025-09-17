@@ -8,6 +8,24 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
+  #Este mysql es solo para pruebas locales no se tiene que tomar en cuenta para la configuracion en produccion
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    healthcheck: # THIS IS CRUCIAL
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   keycloak:
     image: quay.io/keycloak/keycloak:23.0.6
     command: start
@@ -54,7 +72,7 @@ services:
       - keycloak
 
   business-partners-service:
-    image: seminariojalapa/business-partners-service:0.0.5-SNAPSHOT-20250825.144642
+    image: umg-service/business-partners-service:0.0.1-SNAPSHOT-20250913.034744
     ports:
       - "8082:8082"
     environment:
@@ -100,4 +118,6 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  mysql_data:
     driver: local

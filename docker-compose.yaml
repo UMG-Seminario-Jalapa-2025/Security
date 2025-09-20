@@ -65,22 +65,14 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - AUTH_URL=${AUTH_URL}
-      - BUSINESS_PARTNERS_URL=http://business-partners-service:8082
-      - ADMIN_URL=http://admin-service:8084
+      - ADMIN_URL=${ADMIN_URL}
+      - BUSINESS_PARTNERS_URL=${BUSINESS_PARTNERS_URL}
+      - EMPLOYEES_URL=${EMPLOYEES_URL}
+      - CUSTOMERS_URL=${CUSTOMERS_URL}
+      - TICKETS_URL=${TICKETS_URL}
     depends_on:
       - redis
       - keycloak
-
-  business-partners-service:
-    image: umg-service/business-partners-service:0.0.1-SNAPSHOT-20250913.034744
-    ports:
-      - "8082:8082"
-    environment:
-      - PORT=8082
-      - DB_PASSWORD=${DB_PASSWORD}
-    depends_on:
-      - keycloak
-      - api-gateway
 
   auth-service:
     image: auth-service:latest
@@ -112,6 +104,46 @@ services:
       - KC_REALM=${KEYCLOAK_REALM}
       - KC_PROV_ID=${KEYCLOAK_CLIENT_ID_APP}
       - KC_PROV_SECRET=${KEYCLOAK_CLIENT_SECRET}
+    depends_on:
+      - keycloak
+      - api-gateway
+
+  business-partners-service:
+    image: seminariojalapa/business-partners-service:0.0.5-SNAPSHOT-20250920.011550
+    ports:
+      - "8082:8082"
+    environment:
+      - PORT=8082
+    depends_on:
+      - keycloak
+      - api-gateway
+
+  customer-service:
+    image: seminariojalapa/customer-service:0.0.1-SNAPSHOT-20250920.012127
+    ports:
+      - "8086:8086"
+    environment:
+      - PORT=8086
+    depends_on:
+      - keycloak
+      - api-gateway
+
+  employee-service:
+    image: seminariojalapa/employee-service:0.0.1-SNAPSHOT-20250920.012218
+    ports:
+      - "8085:8085"
+    environment:
+      - PORT=8085
+    depends_on:
+      - keycloak
+      - api-gateway
+
+  ticket-service:
+    image: seminariojalapa/ticket-service:0.0.1-SNAPSHOT-20250920.012314
+    ports:
+      - "8087:8087"
+    environment:
+      - PORT=8087
     depends_on:
       - keycloak
       - api-gateway

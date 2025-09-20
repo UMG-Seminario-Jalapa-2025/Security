@@ -40,60 +40,57 @@ const apiLimiter = rateLimit({
 });
 app.use(apiLimiter);
 
-const authUrl = (process.env.AUTH_URL || "http://localhost:3001").replace(/\/$/, "");
+const authUrl = process.env.AUTH_URL || "http://localhost:3001";
 const adminUrl = process.env.ADMIN_URL || "http://localhost:8084";
+const businessPartnersUrl = process.env.BUSINESS_PARTNERS_URL || "http://business-partners-service:8082";
+const employeesUrl = process.env.EMPLOYEES_URL || "http://employee-service:8085";
+const customerUrl = process.env.CUSTOMERS_URL || "http://customer-service:8086";
+const ticketUrl = process.env.TICKETS_URL || "http://ticket-service:8087";
 
 const authMiddleware = async (req, res, next) => {
-  console.log("Interceptando ruta:", req.path);
-
-  // Permitir acceso sin autenticación a Swagger
-  const path = req.path;
-  if (path.startsWith("/api/business-partners/swagger-ui") || path.startsWith("/api/business-partners/v3/api-docs")) {
-    console.log("Ruta de Swagger detectada, permitiendo acceso sin autenticación.");
-    return next();
-  }
-
+  console.log("Llamando al authMiddleware");
   const authHeader = req.headers["authorization"];
-  if (!authHeader) {
-    return res.status(401).send("Missing authorization header");
-  }
-
+  if (!authHeader) return res.status(401).send("Missing authorization header");
   console.log("Antes de hacer el split de auth header");
   const token = authHeader.split(" ")[1];
   let cachedData = await redisClient.get(token);
   if (cachedData) {
     return next();
   }
-
   try {
     const response = await axios.get(`${authUrl}/verifyToken`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const { data } = response;
 
-    // Guardar datos en Redis para futuras validaciones
-    await redisClient.set(token, JSON.stringify(data));
+    //Getting data for authorization later on.
+    //apps, modulos, recursos y permisos (adjuntarlo al json de verify)
+    // Cual es mi criterio de busqueda en la bd.
+    //Criterio de busqueda , sessionid=token and userid.
+    
+    // Extraer tiempo de expiración del JWT
+    let ttl = 300; // valor por defecto 5 minutos
+    try {
+      const jwtPayload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+      const now = Math.floor(Date.now() / 1000);
+      if (jwtPayload.exp) {
+        ttl = jwtPayload.exp - now;
+      }
+    } catch (e) {
+      console.log('No se pudo extraer exp del JWT, usando TTL por defecto');
+    }
+    // Guardar datos en Redis con expiración igual al tiempo de vida del token
+    await redisClient.set(token, JSON.stringify(data), 'EX', ttl > 0 ? ttl : 1);
     next();
+
+  
+
   } catch (error) {
     console.log({ error });
     res.status(401).send("Invalid or expired token");
   }
 };
 
-const businessPartnersUrl = process.env.BUSINESS_PARTNERS_URL || "http://business-partners-service:8082";
-
-// Proteger todas las demás rutas con authMiddleware
-app.use(
-  "/api/business-partners",
-  authMiddleware,
-  createProxyMiddleware({
-    target: businessPartnersUrl,
-    changeOrigin: true,
-    pathRewrite: {
-      "^/api/business-partners": "",
-    },
-  })
-);
 
 // Set up proxy middleware for each service
 
@@ -120,6 +117,75 @@ app.use(
     changeOrigin: true,
     pathRewrite: {
       "^/api/admin": "",
+    },
+  })
+);
+
+// Proteger todas las demás rutas con authMiddleware
+app.use(
+  "/api/business-partners",
+  authMiddleware,
+  createProxyMiddleware({
+    target: businessPartnersUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/business-partners": "",
+    },
+    onProxyReq: (proxyReq, req, res) => {
+      if (req.method === "POST" && req.headers["content-type"]) {
+        proxyReq.setHeader("Content-Type", req.headers["content-type"]);
+      }
+    },
+  })
+);
+
+app.use(
+  "/api/employees",
+  authMiddleware,
+  createProxyMiddleware({
+    target: employeesUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/employees": "",
+   },
+    onProxyReq: (proxyReq, req, res) => {
+      if (req.method === "POST" && req.headers["content-type"]) {
+        proxyReq.setHeader("Content-Type", req.headers["content-type"]);
+      }
+    },
+  })
+);
+
+app.use(
+  "/api/customers",
+  authMiddleware,
+  createProxyMiddleware({
+    target: customerUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/customers": "",
+   },
+    onProxyReq: (proxyReq, req, res) => {
+      if (req.method === "POST" && req.headers["content-type"]) {
+        proxyReq.setHeader("Content-Type", req.headers["content-type"]);
+      }
+    },
+  })
+);
+
+app.use(
+  "/api/tickets",
+  authMiddleware,
+  createProxyMiddleware({
+    target: ticketUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/tickets": "",
+ },
+    onProxyReq: (proxyReq, req, res) => {
+      if (req.method === "POST" && req.headers["content-type"]) {
+        proxyReq.setHeader("Content-Type", req.headers["content-type"]);
+      }
     },
   })
 );

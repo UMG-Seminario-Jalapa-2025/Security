@@ -123,13 +123,27 @@ app.use(
 
 // Proteger todas las demás rutas con authMiddleware
 app.use(
-  "/api/business-partners",
+  "/api/partners",
   authMiddleware,
   createProxyMiddleware({
     target: businessPartnersUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/business-partners": "",
+      "^/api/partners": "/partners",
+    },
+  })
+);
+
+const employeeUrl = process.env.EMPLOYEE_URL || "http://employee-service:8083";
+// Proxy para employee-service (incluyendo Swagger) protegido con authMiddleware
+app.use(
+  "/api/employee",
+  authMiddleware,
+  createProxyMiddleware({
+    target: employeeUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/api/employee": "/employee",
     },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {

@@ -95,12 +95,12 @@ const authMiddleware = async (req, res, next) => {
 // Set up proxy middleware for each service
 
 app.use(
-  "/api/auth",
+  "/auth",
   createProxyMiddleware({
     target: authUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/auth": "",
+      "^/auth": "",
     },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {
@@ -111,39 +111,25 @@ app.use(
 );
 
 app.use(
-  "/api/admin",
+  "/admin",
   createProxyMiddleware({
     target: adminUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/admin": "",
+      "^/admin": "",
     },
   })
 );
 
 // Proteger todas las demás rutas con authMiddleware
 app.use(
-  "/api/partners",
+  "/partners",
   authMiddleware,
   createProxyMiddleware({
     target: businessPartnersUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/partners": "/partners",
-    },
-  })
-);
-
-const employeeUrl = process.env.EMPLOYEE_URL || "http://employee-service:8083";
-// Proxy para employee-service (incluyendo Swagger) protegido con authMiddleware
-app.use(
-  "/api/employee",
-  authMiddleware,
-  createProxyMiddleware({
-    target: employeeUrl,
-    changeOrigin: true,
-    pathRewrite: {
-      "^/api/employee": "/employee",
+      "^/partners": "",
     },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {
@@ -154,13 +140,13 @@ app.use(
 );
 
 app.use(
-  "/api/employees",
+  "/employees",
   authMiddleware,
   createProxyMiddleware({
     target: employeesUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/employees": "",
+      "^/employees": "",
    },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {
@@ -171,13 +157,13 @@ app.use(
 );
 
 app.use(
-  "/api/customers",
+  "/customers",
   authMiddleware,
   createProxyMiddleware({
     target: customerUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/customers": "",
+      "^/customers": "",
    },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {
@@ -188,14 +174,14 @@ app.use(
 );
 
 app.use(
-  "/api/tickets",
+  "/tickets",
   authMiddleware,
   createProxyMiddleware({
     target: ticketUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/tickets": "",
- },
+      "^/tickets": "",
+    },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {
         proxyReq.setHeader("Content-Type", req.headers["content-type"]);

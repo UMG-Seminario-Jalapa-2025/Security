@@ -123,13 +123,13 @@ app.use(
 
 // Proteger todas las demás rutas con authMiddleware
 app.use(
-  "/business-partners",
+  "/partners",
   authMiddleware,
   createProxyMiddleware({
     target: businessPartnersUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/business-partners": "",
+      "^/partners": "",
     },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {

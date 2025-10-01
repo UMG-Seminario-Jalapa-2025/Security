@@ -1,7 +1,7 @@
 import express from 'express';
 import { requireAppAdmin } from '../middleware/auth.js';
 import { createUser, getAllUsers, deleteUser, getUserByEmail, updateUser, updateUserRoles, updateUserGroups } from '../services/userService.js';
-import { createRole, getAllRoles } from '../services/roleService.js';
+import { createRole, getAllRoles, deleteRoleByName, updateRoleByName } from '../services/roleService.js';
 
 const router = express.Router();
 // Endpoint público para registro de usuario (sin token)
@@ -73,6 +73,27 @@ router.get('/roles', requireAppAdmin, async (req, res) => {
   try {
     const roles = await getAllRoles();
     return res.status(200).json(roles);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'keycloak_error', detail: err.message });
+  }
+});
+
+router.delete('/roles/:name', requireAppAdmin, async (req, res) => {
+  try {
+    const result = await deleteRoleByName(req.params.name);
+    return res.status(200).json(result);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'keycloak_error', detail: err.message });
+  }
+});
+
+router.put('/roles/:name', requireAppAdmin, async (req, res) => {
+  try {
+    const { newName, description } = req.body;
+    const result = await updateRoleByName(req.params.name, { newName, description });
+    return res.status(200).json(result);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'keycloak_error', detail: err.message });

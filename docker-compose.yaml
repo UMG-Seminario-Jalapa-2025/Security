@@ -109,7 +109,7 @@ services:
       - api-gateway
 
   business-partners-service:
-    image: seminariojalapa/business-partners-service:0.0.5-SNAPSHOT-20250920.011550
+    image: seminariojalapa/business-partners-service:0.0.5-SNAPSHOT-20250930.184233
     ports:
       - "8082:8082"
     environment:
@@ -119,7 +119,7 @@ services:
       - api-gateway
 
   customer-service:
-    image: seminariojalapa/customer-service:0.0.1-SNAPSHOT-20250920.012127
+    image: seminariojalapa/customer-service:0.0.1-SNAPSHOT-20250930.184353
     ports:
       - "8086:8086"
     environment:
@@ -129,7 +129,7 @@ services:
       - api-gateway
 
   employee-service:
-    image: seminariojalapa/employee-service:0.0.1-SNAPSHOT-20250920.012218
+    image: seminariojalapa/employee-service:0.0.1-SNAPSHOT-20250930.184430
     ports:
       - "8085:8085"
     environment:
@@ -139,7 +139,7 @@ services:
       - api-gateway
 
   ticket-service:
-    image: seminariojalapa/ticket-service:0.0.1-SNAPSHOT-20250920.012314
+    image: seminariojalapa/ticket-service:0.0.1-SNAPSHOT-20250930.184458
     ports:
       - "8087:8087"
     environment:

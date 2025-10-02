@@ -2,7 +2,7 @@ name: Deploy Auth Service to Dev Environment
 
 on:
   push:
-    branches: ['develop']
+    branches: ['bugfix/Keycloak-admin-loop']
     paths:
       - 'auth-service/**'
 

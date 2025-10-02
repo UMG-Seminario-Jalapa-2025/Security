@@ -139,6 +139,49 @@ app.patch("/suspend", async (req, res) => {
   }
 });
 
+// Proxy para rutas de Keycloak que necesita el frontend
+app.get("/realms/:realm/.well-known/openid-configuration", async (req, res) => {
+  try {
+    const { realm } = req.params;
+    const response = await axios.get(
+      `${process.env.KEYCLOAK_AUTH_SERVER_URL}/realms/${realm}/.well-known/openid-configuration`,
+      {
+        headers: {
+          Host: "dev.one21.app",
+          "X-Forwarded-Proto": "https",
+          "X-Forwarded-Host": "dev.one21.app",
+        },
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error("Failed to fetch OpenID configuration:", error);
+    res.status(500).send("Failed to fetch OpenID configuration");
+  }
+});
+
+// Proxy para otras rutas de realms que el frontend pueda necesitar
+app.get("/realms/:realm/*", async (req, res) => {
+  try {
+    const { realm } = req.params;
+    const path = req.params[0];
+    const response = await axios.get(
+      `${process.env.KEYCLOAK_AUTH_SERVER_URL}/realms/${realm}/${path}`,
+      {
+        headers: {
+          Host: "dev.one21.app",
+          "X-Forwarded-Proto": "https",
+          "X-Forwarded-Host": "dev.one21.app",
+        },
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error("Failed to proxy realm request:", error);
+    res.status(500).send("Failed to proxy realm request");
+  }
+});
+
 const port = process.env.PORT || 3001;
 
 app.listen(port, () => {

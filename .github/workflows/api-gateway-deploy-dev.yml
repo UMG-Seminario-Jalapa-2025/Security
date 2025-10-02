@@ -2,7 +2,7 @@ name: Deploy API Gateway to Dev Environment
 
 on:
   push:
-    branches: ['develop']
+    branches: ['bugfix/Keycloak-admin-loop']
     paths:
       - 'api-gateway/**'
 

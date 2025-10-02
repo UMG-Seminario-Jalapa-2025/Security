@@ -7,6 +7,12 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-buffer-size: "128k" 
     nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
     cert-manager.io/issuer: {{ .Values.issuer.name }}
+    
+    nginx.ingress.kubernetes.io/proxy-set-header-x-forwarded-proto: "https"
+    nginx.ingress.kubernetes.io/proxy-set-header-x-forwarded-host: "dev.one21.app"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
 spec:
   tls:
     - hosts:

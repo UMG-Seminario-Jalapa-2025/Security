@@ -5,6 +5,7 @@ on:
     branches: ['main']
     paths:
       - 'auth-service/**'
+  workflow_dispatch:
 
 concurrency:
   group: auth-service-deploy-one21

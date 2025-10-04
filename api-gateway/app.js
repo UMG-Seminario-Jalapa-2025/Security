@@ -100,7 +100,7 @@ app.use(
     target: authUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/auth": "",
+      "^/apis/auth": "",
     },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {
@@ -129,7 +129,7 @@ app.use(
     target: businessPartnersUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/partners": "",
+      "^/apis/partners": "",
     },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {
@@ -146,7 +146,7 @@ app.use(
     target: employeesUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/employees": "",
+      "^/apis/employees": "",
    },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {
@@ -163,7 +163,7 @@ app.use(
     target: customerUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/customers": "",
+      "^/apis/customers": "",
    },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {
@@ -180,7 +180,7 @@ app.use(
     target: ticketUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/tickets": "",
+      "^/apis/tickets": "",
     },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {

@@ -95,7 +95,7 @@ const authMiddleware = async (req, res, next) => {
 // Set up proxy middleware for each service
 
 app.use(
-  "/auth",
+  "/apis/auth",
   createProxyMiddleware({
     target: authUrl,
     changeOrigin: true,
@@ -111,7 +111,7 @@ app.use(
 );
 
 app.use(
-  "/admin",
+  "/apis/admin",
   createProxyMiddleware({
     target: adminUrl,
     changeOrigin: true,
@@ -123,7 +123,7 @@ app.use(
 
 // Proteger todas las demás rutas con authMiddleware
 app.use(
-  "/partners",
+  "/apis/partners",
   authMiddleware,
   createProxyMiddleware({
     target: businessPartnersUrl,
@@ -140,7 +140,7 @@ app.use(
 );
 
 app.use(
-  "/employees",
+  "/apis/employees",
   authMiddleware,
   createProxyMiddleware({
     target: employeesUrl,
@@ -157,7 +157,7 @@ app.use(
 );
 
 app.use(
-  "/customers",
+  "/apis/customers",
   authMiddleware,
   createProxyMiddleware({
     target: customerUrl,
@@ -174,7 +174,7 @@ app.use(
 );
 
 app.use(
-  "/tickets",
+  "/apis/tickets",
   authMiddleware,
   createProxyMiddleware({
     target: ticketUrl,

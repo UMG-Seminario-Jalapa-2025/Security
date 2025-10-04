@@ -5,6 +5,7 @@ on:
     branches: ['develop']
     paths:
       - 'api-gateway/**'
+  workflow_dispatch:
 
 concurrency:
   group: api-gateway-deploy-dev-one21

@@ -116,7 +116,7 @@ app.use(
     target: adminUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/admin": "",
+      "^/apis/admin": "",
     },
   })
 );

@@ -205,3 +205,17 @@ curl -X POST http://localhost:8081/api/admin/roles \
 curl -X GET http://localhost:8081/api/admin/roles \
   -H "Authorization: Bearer TU_TOKEN_JWT"
 ```
+
+### 12. Editar rol por nombre
+```sh
+curl -X PUT http://localhost:8081/api/admin/roles/doctor \
+  -H "Authorization: Bearer TU_TOKEN_JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"newName": "senior-doctor", "description": "Senior doctor with extended privileges"}'
+```
+
+### 13. Eliminar rol por nombre
+```sh
+curl -X DELETE http://localhost:8081/api/admin/roles/doctor \
+  -H "Authorization: Bearer TU_TOKEN_JWT"
+```

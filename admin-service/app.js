@@ -9,4 +9,5 @@ app.use(express.json());
 app.use(adminRoutes);
 app.use(errorHandler);
 
+// Start the server
 app.listen(process.env.PORT || 8084, () => console.log(`API admin lista en :${process.env.PORT || 8084}`));

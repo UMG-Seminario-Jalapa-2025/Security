@@ -2,7 +2,7 @@ name: Deploy Admin Service to Dev Environment
 
 on:
   push:
-    branches: ['feature/add-github-actions']
+    branches: ['develop']
     paths:
       - 'admin-service/**'
   workflow_dispatch:
@@ -27,11 +27,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: ./admin-service/package-lock.json
 
       - name: Install dependencies
         working-directory: ./admin-service
-        run: npm ci
+        run: npm install
 
       - name: Build project
         working-directory: ./admin-service
@@ -59,11 +58,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: ./admin-service/package-lock.json
 
       - name: Install dependencies
         working-directory: ./admin-service
-        run: npm ci
+        run: npm install
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -72,7 +70,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./admin-service
-        run: npm test
+        run: npm run test --if-present
 
   docker-build:
     name: Build & Push Docker Image

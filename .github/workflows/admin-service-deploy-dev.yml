@@ -2,7 +2,7 @@ name: Deploy Admin Service to Dev Environment
 
 on:
   push:
-    branches: ['develop']
+    branches: ['feature/add-github-actions']
     paths:
       - 'admin-service/**'
   workflow_dispatch:

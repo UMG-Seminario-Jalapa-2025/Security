@@ -122,10 +122,12 @@ envVars:
     value: "http://auth-service.one21.svc.cluster.local:8083"
   - name: BUSINESS_PARTNERS_URL
     value: "http://one21-business-partners-service.one21.svc.cluster.local:9000"
-  - name: EMPLOYEE_URL
+  - name: EMPLOYEES_URL
     value: "http://one21-employee-service.one21.svc.cluster.local:9001"
   - name: TICKETS_URL
     value: "http://one21-ticket-service.one21.svc.cluster.local:9002"
+  - name: ADMIN_URL
+    value: "http://admin-service.one21.svc.cluster.local:3004"
 
 # Dragonfly Cache Configuration
 dragonflycache:

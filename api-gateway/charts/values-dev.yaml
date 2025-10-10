@@ -128,6 +128,9 @@ envVars:
     value: "http://dev-one21-ticket-service.dev-one21.svc.cluster.local:9002"
   - name: ADMIN_URL
     value: "http://dev-admin-service.dev-one21.svc.cluster.local:3004"
+  - name: CUSTOMERS_URL
+    value: "http://dev-one21-customer-service.dev-one21.svc.cluster.local:9003"
+
 
 # Dragonfly Cache Configuration
 dragonflycache:

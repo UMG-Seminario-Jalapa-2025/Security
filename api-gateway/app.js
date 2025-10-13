@@ -121,10 +121,26 @@ app.use(
   })
 );
 
+// Rutas públicas de partners (sin autenticación)
+const publicPartnersRoutes = ['/municipalities', '/departments', '/countries'];
+
 // Proteger todas las demás rutas con authMiddleware
 app.use(
   "/apis/partners",
-  authMiddleware,
+  (req, res, next) => {
+    // Verificar si la ruta es pública
+    const isPublicRoute = publicPartnersRoutes.some(route => 
+      req.path.startsWith(route)
+    );
+    
+    // Si es una ruta pública, saltar el authMiddleware
+    if (isPublicRoute) {
+      return next();
+    }
+    
+    // Si no es pública, aplicar autenticación
+    return authMiddleware(req, res, next);
+  },
   createProxyMiddleware({
     target: businessPartnersUrl,
     changeOrigin: true,

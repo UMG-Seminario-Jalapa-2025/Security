@@ -122,7 +122,7 @@ app.use(
 );
 
 // Rutas públicas de partners (sin autenticación)
-const publicPartnersRoutes = ['/municipalities', '/departments', '/countries'];
+const publicPartnersRoutes = ['/municipalities', '/departments', '/countries', '/register'];
 
 // Proteger todas las demás rutas con authMiddleware
 app.use(

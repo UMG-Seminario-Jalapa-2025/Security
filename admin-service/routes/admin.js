@@ -4,6 +4,25 @@ import { createUser, getAllUsers, deleteUser, getUserByEmail, updateUser, update
 import { createRole, getAllRoles, deleteRoleByName, updateRoleByName } from '../services/roleService.js';
 
 const router = express.Router();
+
+// Endpoint público para verificar si un correo ya existe
+router.get('/check-email/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    if (!email) {
+      return res.status(400).json({ error: 'Email es requerido' });
+    }
+    const user = await getUserByEmail(email);
+    return res.status(200).json({ 
+      exists: !!user,
+      email: email
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'keycloak_error', detail: err.message });
+  }
+});
+
 // Endpoint público para registro de usuario (sin token)
 router.post('/register', async (req, res) => {
   try {

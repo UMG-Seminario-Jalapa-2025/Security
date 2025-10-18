@@ -8,6 +8,24 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
+  #Este mysql es solo para pruebas locales no se tiene que tomar en cuenta para la configuracion en produccion
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    healthcheck: # THIS IS CRUCIAL
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   keycloak:
     image: quay.io/keycloak/keycloak:23.0.6
     command: start
@@ -47,33 +65,14 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - AUTH_URL=${AUTH_URL}
-      - BUSINESS_PARTNERS_URL=http://business-partners-service:8082
-      - EMPLOYEE_URL=http://employee-service:8083
+      - ADMIN_URL=${ADMIN_URL}
+      - BUSINESS_PARTNERS_URL=${BUSINESS_PARTNERS_URL}
+      - EMPLOYEES_URL=${EMPLOYEES_URL}
+      - CUSTOMERS_URL=${CUSTOMERS_URL}
+      - TICKETS_URL=${TICKETS_URL}
     depends_on:
       - redis
       - keycloak
-
-  business-partners-service:
-    image: seminariojalapa/business-partners-service:0.0.5-SNAPSHOT-20250819.025552
-    ports:
-      - "8082:8082"
-    environment:
-      - PORT=8082
-      - DB_PASSWORD=${DB_PASSWORD}
-    depends_on:
-      - keycloak
-      - api-gateway
-
-  employee-service:
-    image: seminariojalapa/dev-employee-service:1
-    ports:
-      - "8083:8080"
-    environment:
-      - PORT=8080
-      - DB_PASSWORD=${DB_PASSWORD}
-    depends_on:
-      - keycloak
-      - api-gateway
 
   auth-service:
     image: auth-service:latest
@@ -91,7 +90,66 @@ services:
     depends_on:
       - keycloak
       - api-gateway
+  
+  admin-service:
+    image: admin-service:latest
+    build:
+      context: ./admin-service
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      - PORT=8084
+      - KC_BASE_URL=${KC_BASE_URL}
+      - KC_REALM=${KEYCLOAK_REALM}
+      - KC_PROV_ID=${KEYCLOAK_CLIENT_ID_APP}
+      - KC_PROV_SECRET=${KEYCLOAK_CLIENT_SECRET}
+    depends_on:
+      - keycloak
+      - api-gateway
+
+  business-partners-service:
+    image: seminariojalapa/business-partners-service:0.0.5-SNAPSHOT-20250930.184233
+    ports:
+      - "8082:8082"
+    environment:
+      - PORT=8082
+    depends_on:
+      - keycloak
+      - api-gateway
+
+  customer-service:
+    image: seminariojalapa/customer-service:0.0.1-SNAPSHOT-20250930.184353
+    ports:
+      - "8086:8086"
+    environment:
+      - PORT=8086
+    depends_on:
+      - keycloak
+      - api-gateway
+
+  employee-service:
+    image: seminariojalapa/employee-service:0.0.1-SNAPSHOT-20250930.184430
+    ports:
+      - "8085:8085"
+    environment:
+      - PORT=8085
+    depends_on:
+      - keycloak
+      - api-gateway
+
+  ticket-service:
+    image: seminariojalapa/ticket-service:0.0.1-SNAPSHOT-20250930.184458
+    ports:
+      - "8087:8087"
+    environment:
+      - PORT=8087
+    depends_on:
+      - keycloak
+      - api-gateway
 
 volumes:
   postgres_data:
+    driver: local
+  mysql_data:
     driver: local

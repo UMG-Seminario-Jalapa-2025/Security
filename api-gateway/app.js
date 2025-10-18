@@ -41,6 +41,11 @@ const apiLimiter = rateLimit({
 app.use(apiLimiter);
 
 const authUrl = process.env.AUTH_URL || "http://localhost:3001";
+const adminUrl = process.env.ADMIN_URL || "http://localhost:8084";
+const businessPartnersUrl = process.env.BUSINESS_PARTNERS_URL || "http://business-partners-service:8082";
+const employeesUrl = process.env.EMPLOYEES_URL || "http://employee-service:8085";
+const customerUrl = process.env.CUSTOMERS_URL || "http://customer-service:8086";
+const ticketUrl = process.env.TICKETS_URL || "http://ticket-service:8087";
 
 const authMiddleware = async (req, res, next) => {
   console.log("Llamando al authMiddleware");
@@ -63,7 +68,19 @@ const authMiddleware = async (req, res, next) => {
     // Cual es mi criterio de busqueda en la bd.
     //Criterio de busqueda , sessionid=token and userid.
     
-    await redisClient.set(token, JSON.stringify(data));
+    // Extraer tiempo de expiración del JWT
+    let ttl = 300; // valor por defecto 5 minutos
+    try {
+      const jwtPayload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+      const now = Math.floor(Date.now() / 1000);
+      if (jwtPayload.exp) {
+        ttl = jwtPayload.exp - now;
+      }
+    } catch (e) {
+      console.log('No se pudo extraer exp del JWT, usando TTL por defecto');
+    }
+    // Guardar datos en Redis con expiración igual al tiempo de vida del token
+    await redisClient.set(token, JSON.stringify(data), 'EX', ttl > 0 ? ttl : 1);
     next();
 
   
@@ -74,43 +91,96 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-const businessPartnersUrl = process.env.BUSINESS_PARTNERS_URL || "http://business-partners-service:8082";
-// Proxy para business-partners-service (incluyendo Swagger) protegido con authMiddleware
+
+// Set up proxy middleware for each service
+
 app.use(
-  "/api/partners",
+  "/apis/auth",
+  createProxyMiddleware({
+    target: authUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/apis/auth": "",
+    },
+    onProxyReq: (proxyReq, req, res) => {
+      if (req.method === "POST" && req.headers["content-type"]) {
+        proxyReq.setHeader("Content-Type", req.headers["content-type"]);
+      }
+    },
+  })
+);
+
+app.use(
+  "/apis/admin",
+  createProxyMiddleware({
+    target: adminUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/apis/admin": "",
+    },
+  })
+);
+
+// Proteger todas las demás rutas con authMiddleware
+app.use(
+  "/apis/partners",
   authMiddleware,
   createProxyMiddleware({
     target: businessPartnersUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/partners": "/partners",
+      "^/apis/partners": "",
+    },
+    onProxyReq: (proxyReq, req, res) => {
+      if (req.method === "POST" && req.headers["content-type"]) {
+        proxyReq.setHeader("Content-Type", req.headers["content-type"]);
+      }
     },
   })
 );
 
-const employeeUrl = process.env.EMPLOYEE_URL || "http://employee-service:8083";
-// Proxy para employee-service (incluyendo Swagger) protegido con authMiddleware
 app.use(
-  "/api/employee",
+  "/apis/employees",
   authMiddleware,
   createProxyMiddleware({
-    target: employeeUrl,
+    target: employeesUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/employee": "/employee",
+      "^/apis/employees": "",
+   },
+    onProxyReq: (proxyReq, req, res) => {
+      if (req.method === "POST" && req.headers["content-type"]) {
+        proxyReq.setHeader("Content-Type", req.headers["content-type"]);
+      }
     },
   })
 );
 
-// Set up proxy middleware for each service
-
 app.use(
-  "/api/auth",
+  "/apis/customers",
+  authMiddleware,
   createProxyMiddleware({
-    target: authUrl,
+    target: customerUrl,
     changeOrigin: true,
     pathRewrite: {
-      "^/api/auth": "",
+      "^/apis/customers": "",
+   },
+    onProxyReq: (proxyReq, req, res) => {
+      if (req.method === "POST" && req.headers["content-type"]) {
+        proxyReq.setHeader("Content-Type", req.headers["content-type"]);
+      }
+    },
+  })
+);
+
+app.use(
+  "/apis/tickets",
+  authMiddleware,
+  createProxyMiddleware({
+    target: ticketUrl,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/apis/tickets": "",
     },
     onProxyReq: (proxyReq, req, res) => {
       if (req.method === "POST" && req.headers["content-type"]) {

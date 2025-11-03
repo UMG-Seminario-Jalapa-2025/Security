@@ -1,6 +1,12 @@
 import kc, { authProvisioner } from '../config/keycloak.js';
 
-const ALLOWED_REALM_ROLES = new Set(['patient','doctor','staff','app-admin','client']);
+// Roles permitidos desde variable de entorno (separados por comas)
+const ALLOWED_REALM_ROLES = new Set(
+  (process.env.ALLOWED_REALM_ROLES || 'patient,doctor,staff,app-admin,client,employee')
+    .split(',')
+    .map(role => role.trim())
+    .filter(Boolean)
+);
 
 export async function createUser({ username, email, firstName, lastName, sendActionsEmail = true, realmRoles = [], groups = [] }) {
   await authProvisioner();
